@@ -52,8 +52,28 @@ function startGame() {
   myGameArea.start();
   myGamePiece = new component(10, 10, "red", 240, 135);
   myEnemy = new component(5, 5, "blue", 300, 72);
+  myEnemy.x = Math.floor(Math.random() * 475);
+  myEnemy.y = Math.floor(Math.random() * 265);
+  myEnemy.speedX = randoDirect();
+  myEnemy.speedY = randoDirect();
 }
 
+function randoDirect() {
+  x = Math.random() * 2;
+  if(x < 0.55){
+    x = 0.55
+  }
+  if(x > 1.65){
+    x = 1.65
+  }
+  console.log("x: " + x)
+  y = Math.floor(Math.random() * 2)
+  console.log("y: " + y);
+  if(y === 1) {
+    x = -Math.abs(x)
+  }
+  return x;
+}
 
 function component(width, height, color, x, y) {
   this.width = width;
@@ -74,19 +94,34 @@ function component(width, height, color, x, y) {
   };
   this.newPos = function () {
     this.x += this.speedX;
+    this.y += this.speedY;
+    if(this === myGamePiece){
     if(this.x > 470) {
       this.x = 470
     }
     if(this.x < 0){
       this.x = 0
     }
-    this.y += this.speedY;
     if(this.y > 260) {
       this.y = 260
     }
     if(this.y < 0) {
       this.y = 0
     }
+  } if (this === myEnemy){
+    if(this.x > 475) {
+      this.speedX = -Math.abs(this.speedX);
+    }
+    if(this.x < 0) {
+      this.speedX = Math.abs(this.speedX);
+    }
+    if(this.y > 265) {
+      this.speedY = -Math.abs(this.speedY);
+    }
+    if(this.y < 0) {
+      this.speedY = Math.abs(this.speedY);
+    }
+  }
   },
   this.crashWith = function(otherObj) {
     var myLeft = this.x;
@@ -111,6 +146,7 @@ function updateGameArea() {
   }
   else {
   myGameArea.clear();
+  myEnemy.newPos();
   myEnemy.update();
   myGamePiece.speedX = 0;
   myGamePiece.speedY = 0;
