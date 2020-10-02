@@ -27,10 +27,16 @@ var myGameArea = {
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     this.interval = setInterval(updateGameArea, 20);
     window.addEventListener("keydown", function (e) {
+      // Gravity(mass) triples while spacebar is held
+      if(e.keyCode === 32) {
+        myEnemy.gravity = 0.15;
+        console.log("gravChange!");
+      }
       myGameArea.keys = (myGameArea.keys || []);
       myGameArea.keys[e.keyCode] = true;
     })
     window.addEventListener("keyup", function (e) {
+      myEnemy.gravity = 0.05
       myGameArea.keys[e.keyCode] = false;
     })
   },
@@ -46,6 +52,8 @@ var myGameArea = {
 var myGamePiece;
 
 var myEnemy;
+
+var grav = 0.05;
 
 function startGame() {
   myGameArea.start();
@@ -83,8 +91,9 @@ function component(width, height, color, x, y, type) {
   this.y = y;
   this.type = type
   if(this.type === "enemy") {
-    this.gravity = 0.05;
-    this.gravitySpeed = 0;
+    this.gravity = grav;
+    this.gravitySpeedX = 0;
+    this.gravitySpeedY = 0;
   }
   this.update = function () {
     ctx = myGameArea.context;
@@ -125,39 +134,51 @@ function component(width, height, color, x, y, type) {
     if(this.y < 0) {
       this.y = 0
     }
+    // Alters gravityspeed based on location relative to player
     if(this.x < myGamePiece.x && this.y < myGamePiece.y){
-    this.gravitySpeed += this.gravity
-    this.x += this.speedX + this.gravitySpeed;
-    this.y += this.speedY + this.gravitySpeed;
+    this.gravitySpeedX += this.gravity;
+    this.gravitySpeedY += this.gravity;
+    this.x += this.speedX + this.gravitySpeedX;
+    this.y += this.speedY + this.gravitySpeedY;
     }
     if(this.x > myGamePiece.x && this.y > myGamePiece.y){
-    this.gravitySpeed += this.gravity
-    this.x += this.speedX - this.gravitySpeed
-    this.y += this.speedY - this.gravitySpeed
+    this.gravitySpeedX -= this.gravity;
+    this.gravitySpeedY -= this.gravity;
+    this.x += this.speedX + this.gravitySpeedX;
+    this.y += this.speedY + this.gravitySpeedY;
     }
     if(this.x < myGamePiece.x && this.y > myGamePiece.y){
-    this.gravitySpeed += this.gravity
-    this.x += this.speedX + this.gravitySpeed
-    this.y += this.speedY - this.gravitySpeed
+    this.gravitySpeedX += this.gravity;
+    this.gravitySpeedY -= this.gravity;
+    this.x += this.speedX + this.gravitySpeedX;
+    this.y += this.speedY + this.gravitySpeedY;
     }
     if(this.x > myGamePiece.x && this.y < myGamePiece.y){
-    this.gravitySpeed += this.gravity
-    this.x += this.speedX - this.gravitySpeed
-    this.y += this.speedY + this.gravitySpeed
+    this.gravitySpeedX -= this.gravity;
+    this.gravitySpeedY += this.gravity;
+    this.x += this.speedX + this.gravitySpeedX;
+    this.y += this.speedY + this.gravitySpeedY;
     }
-    if(this.x === myGamePiece.x){
-      this.gravitySpeed += this.gravity
-      this.x += this.speedX + this.gravitySpeed
+    if(this.x === myGamePiece.x && this.y < myGamePiece.y){
+      this.gravitySpeedY += this.gravity;
+      this.y += this.speedY + this.gravitySpeedY;
     }
-    if(this.y === myGamePiece.y){
-      this.gravitySpeed += this.gravity
-      this.y += this.speedY + this.gravitySpeed
+    if(this.x === myGamePiece.x && this.y > myGamePiece.y){
+      this.gravitySpeedY -= this.gravityspeedY;
+      this.y += this.speedY + this.gravitySpeedY;
     }
-    console.log("Grav Speed: " + this.gravitySpeed);
-    this.hitBottom();
+    if(this.x < myGamePiece.x && this.y === myGamePiece.y){
+      this.gravitySpeedX += this.gravity;
+      this.x += this.speedX + this.gravitySpeedX;
+    }
+    if(this.x > myGamePiece.x && this.y === myGamePiece.y){
+      this.gravitySpeedX -= this.gravity;
+      this.x += this.speedX + this.gravitySpeedX;
+    }
+    this.hitEdge();
   }
 },
-  this.hitBottom = function() {
+  this.hitEdge = function() {
     var rockBottom = myGameArea.canvas.height - this.height;
     var rockRight = myGameArea.canvas.width - this.width;
       if (this.y > rockBottom) {
@@ -191,11 +212,9 @@ function updateGameArea() {
     myGameArea.stop();
   }
   else {
-  myGameArea.clear();
+  // myGameArea.clear();
   myEnemy.newPos();
   myEnemy.update();
-  // console.log("X: " + myEnemy.x);
-  // console.log("Y: " + myEnemy.y);
   myGamePiece.speedX = 0;
   myGamePiece.speedY = 0;
   if (myGameArea.keys && myGameArea.keys[37]) {
