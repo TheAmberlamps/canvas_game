@@ -8,7 +8,7 @@
 <style>
   canvas {
     border:1px solid #d3d3d3;
-    background-color: #f1f1f1;
+    background-color: #000000;
 }
 </style>
 </head>
@@ -21,13 +21,13 @@
 var myGameArea = {
   canvas: document.createElement("canvas"),
   start: function () {
-    this.canvas.width = 480;
-    this.canvas.height = 270;
+    this.canvas.width = 540;
+    this.canvas.height = 660;
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     this.interval = setInterval(updateGameArea, 20);
     window.addEventListener("keydown", function (e) {
-      // Gravity(mass) triples while spacebar is held
+      // Gravity triples while spacebar is held
       if(e.keyCode === 32) {
         myEnemy.gravity = 0.15;
         console.log("gravChange!");
@@ -53,14 +53,23 @@ var myGamePiece;
 
 var myEnemy;
 
+var myStar;
+
+var myStars = [];
+
 var grav = 0.05;
 
 function startGame() {
   myGameArea.start();
-  myGamePiece = new component(10, 10, "red", 240, 135, "player");
+  myGamePiece = new component(10, 10, "red", 260, 320, "player");
   myEnemy = new component(5, 5, "blue", 300, 72, "enemy");
-  myEnemy.x = Math.floor(Math.random() * 475);
-  myEnemy.y = Math.floor(Math.random() * 265);
+  myStar = new star(Math.floor(Math.random() * 540), Math.floor(Math.random() * 4));
+  if(myStar.speed === 0){
+    myStar.speed = 1;
+  }
+  myStars.push(myStar);
+  myEnemy.x = Math.floor(Math.random() * 535);
+  myEnemy.y = Math.floor(Math.random() * 655);
   // myEnemy.speedX = randoDirect();
   // myEnemy.speedY = randoDirect();
 }
@@ -80,6 +89,21 @@ function randoDirect() {
     x = -Math.abs(x)
   }
   return x;
+}
+
+function star(x, speed) {
+  this.x = x;
+  this.y = 0;
+  this.color = "white";
+  this.speed = speed;
+  this.update = function() {
+    ctx = myGameArea.context;
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, 2, 2) 
+  }
+  this.newPos = function() {
+  this.y += this.speed
+  }
 }
 
 function component(width, height, color, x, y, type) {
@@ -109,27 +133,27 @@ function component(width, height, color, x, y, type) {
     this.x += this.speedX;
     this.y += this.speedY;
     if (this.type === "player") {
-    if(this.x > 470) {
-      this.x = 470
+    if(this.x > 530) {
+      this.x = 530
     }
     if(this.x < 0){
       this.x = 0
     }
-    if(this.y > 260) {
-      this.y = 260
+    if(this.y > 650) {
+      this.y = 650
     }
     if(this.y < 0) {
       this.y = 0
     }}
     if (this.type === "enemy"){
-    if(this.x > 475) {
-      this.x = 475
+    if(this.x > 535) {
+      this.x = 535
     }
     if(this.x < 0) {
       this.x = 0
     }
-    if(this.y > 265) {
-      this.y = 265
+    if(this.y > 655) {
+      this.y = 655
     }
     if(this.y < 0) {
       this.y = 0
@@ -212,9 +236,22 @@ function updateGameArea() {
     myGameArea.stop();
   }
   else {
-  // myGameArea.clear();
-  myEnemy.newPos();
+  myGameArea.clear();
+  if(Math.floor(Math.random() * 5) === 4) {
+    myStar = new star(Math.floor(Math.random() * 540), Math.floor(Math.random() * 4))
+    if(myStar.speed === 0) {
+      myStar.speed = 1;
+    };
+    myStars.push(myStar);
+  }
+  for(i=0; i < myStars.length; i++){
+  myStars[i].update();
+  myStars[i].newPos();
+  }
+  myStar.update();
+  myStar.newPos();
   myEnemy.update();
+  myEnemy.newPos();
   myGamePiece.speedX = 0;
   myGamePiece.speedY = 0;
   if (myGameArea.keys && myGameArea.keys[37]) {
@@ -229,8 +266,8 @@ function updateGameArea() {
   if (myGameArea.keys && myGameArea.keys[40]) {
     myGamePiece.speedY = 1; 
   }
-  myGamePiece.newPos();
   myGamePiece.update();
+  myGamePiece.newPos();
 }}
 
 // Original function I wrote for movement. Not exactly obsolete because it tackles movement in a different fashion, but for the time-being it's being put to sleep. Could be useful for a space game or something.
