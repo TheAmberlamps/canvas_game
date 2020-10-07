@@ -18,6 +18,8 @@
   myGameArea.start();
 }
 
+// Establish game area
+
 var myGameArea = {
   canvas: document.createElement("canvas"),
   start: function () {
@@ -25,7 +27,9 @@ var myGameArea = {
     this.canvas.height = 660;
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+    // Set update interval
     this.interval = setInterval(updateGameArea, 20);
+    // Keytracking
     window.addEventListener("keydown", function (e) {
       // Gravity triples while spacebar is held
       if(e.keyCode === 32) {
@@ -49,6 +53,8 @@ var myGameArea = {
   }
 };
 
+// Global game elements
+
 var myGamePiece;
 
 var myEnemy;
@@ -60,19 +66,29 @@ var myStars = [];
 var grav = 0.05;
 
 function startGame() {
-  myGameArea.start();
+  // Player
   myGamePiece = new component(10, 10, "red", 260, 320, "player");
+  // Projectile
   myEnemy = new component(5, 5, "blue", 300, 72, "enemy");
-  myStar = new star(Math.floor(Math.random() * 540), Math.floor(Math.random() * 4));
-  if(myStar.speed === 0){
-    myStar.speed = 1;
+  // Populate starfield before game start (not working properly, may have to re-scope function to run independently of startGame)
+  for(i=0; i < myGameArea.canvas.height; i++){
+    if(Math.floor(Math.random() * 5) === 4) {
+      myStar = new star(Math.floor(Math.random() * 540), i, Math.floor(Math.random() * 4));
+        if(myStar.speed === 0){
+          myStar.speed = 1;
+        }
+      myStars.push(myStar);
+    }
   }
-  myStars.push(myStar);
+  // Projectile spawn (Should move these values up as arguments for myEnemy)
   myEnemy.x = Math.floor(Math.random() * 535);
   myEnemy.y = Math.floor(Math.random() * 655);
+  myGameArea.start();
   // myEnemy.speedX = randoDirect();
   // myEnemy.speedY = randoDirect();
 }
+
+// Deprecated randomly generated 2d movement
 
 function randoDirect() {
   x = Math.random() * 2;
@@ -91,20 +107,24 @@ function randoDirect() {
   return x;
 }
 
-function star(x, speed) {
+// Star constructor
+
+function star(x, y, speed) {
   this.x = x;
-  this.y = 0;
+  this.y = y;
   this.color = "white";
   this.speed = speed;
   this.update = function() {
     ctx = myGameArea.context;
     ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, 2, 2) 
+    ctx.fillRect(this.x, this.y, 1, 1) 
   }
   this.newPos = function() {
   this.y += this.speed
   }
 }
+
+// Player and projectile constructor
 
 function component(width, height, color, x, y, type) {
   this.width = width;
@@ -158,7 +178,9 @@ function component(width, height, color, x, y, type) {
     if(this.y < 0) {
       this.y = 0
     }
+    
     // Alters gravityspeed based on location relative to player
+
     if(this.x < myGamePiece.x && this.y < myGamePiece.y){
     this.gravitySpeedX += this.gravity;
     this.gravitySpeedY += this.gravity;
@@ -202,6 +224,9 @@ function component(width, height, color, x, y, type) {
     this.hitEdge();
   }
 },
+
+  // function to stop projectiles moving beyond game boundaries. Only accounts for the bottom and the right side though.
+
   this.hitEdge = function() {
     var rockBottom = myGameArea.canvas.height - this.height;
     var rockRight = myGameArea.canvas.width - this.width;
@@ -214,6 +239,9 @@ function component(width, height, color, x, y, type) {
         console.log("Triggered rockRight");
       }
   }
+
+  // Collision detection.
+
   this.crashWith = function(otherObj) {
     var myLeft = this.x;
     var myRight = this.x + (this.width);
@@ -231,6 +259,8 @@ function component(width, height, color, x, y, type) {
   }
 }
 
+// Redraws the gameArea.
+
 function updateGameArea() {
   if (myGamePiece.crashWith(myEnemy)) {
     myGameArea.stop();
@@ -238,7 +268,7 @@ function updateGameArea() {
   else {
   myGameArea.clear();
   if(Math.floor(Math.random() * 5) === 4) {
-    myStar = new star(Math.floor(Math.random() * 540), Math.floor(Math.random() * 4))
+    myStar = new star(Math.floor(Math.random() * 540), 0, Math.floor(Math.random() * 4))
     if(myStar.speed === 0) {
       myStar.speed = 1;
     };
@@ -247,9 +277,10 @@ function updateGameArea() {
   for(i=0; i < myStars.length; i++){
   myStars[i].update();
   myStars[i].newPos();
+  if(myStars[i].y > myGameArea.canvas.height){
+    myStars.splice(i, 1)
   }
-  myStar.update();
-  myStar.newPos();
+  }
   myEnemy.update();
   myEnemy.newPos();
   myGamePiece.speedX = 0;
