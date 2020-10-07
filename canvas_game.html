@@ -33,14 +33,14 @@ var myGameArea = {
     window.addEventListener("keydown", function (e) {
       // Gravity triples while spacebar is held
       if(e.keyCode === 32) {
-        myEnemy.gravity = 0.15;
+        myEnemy.gravity = 0.25;
         console.log("gravChange!");
       }
       myGameArea.keys = (myGameArea.keys || []);
       myGameArea.keys[e.keyCode] = true;
     })
     window.addEventListener("keyup", function (e) {
-      myEnemy.gravity = 0.05
+      myEnemy.gravity = 0.15
       myGameArea.keys[e.keyCode] = false;
     })
   },
@@ -53,7 +53,7 @@ var myGameArea = {
   }
 };
 
-// Global game elements
+// Global game elements (first three may not be necessary, but in the interest of not introducing bugs i'm leaving them here for now.)
 
 var myGamePiece;
 
@@ -63,13 +63,13 @@ var myStar;
 
 var myStars = [];
 
-var grav = 0.05;
+var grav = 0.15;
 
-// Only seems to be populating the first third of the Y dimension. Maybe doesn't have enough time to complete the calculations before game starts?
+// Populates background with stars before game start
 
 function starField() {
   for(i=0; i < 660; i++){
-    if(Math.floor(Math.random() * 5) === 4) {
+    if(Math.floor(Math.random() * 7) === 6) {
       myStar = new star(Math.floor(Math.random() * 540), i, Math.floor(Math.random() * 3 + 1));
       myStars.push(myStar);
     }
@@ -81,11 +81,9 @@ starField();
 function startGame() {
   // Player
   myGamePiece = new component(10, 10, "red", 260, 320, "player");
-  // Projectile
-  myEnemy = new component(5, 5, "blue", 300, 72, "enemy");
-  // Projectile spawn (Should move these values up as arguments for myEnemy)
-  myEnemy.x = Math.floor(Math.random() * 535);
-  myEnemy.y = Math.floor(Math.random() * 655);
+  // Warhead
+  myEnemy = new component(5, 5, "blue", Math.floor(Math.random() * 535), Math.floor(Math.random() * 655), "enemy");
+  gunShip = new ship(270, 5, "gunShip");
   myGameArea.start();
   // myEnemy.speedX = randoDirect();
   // myEnemy.speedY = randoDirect();
@@ -127,7 +125,47 @@ function star(x, y, speed) {
   }
 }
 
-// Player and projectile constructor
+
+
+function ship(x, y, type) {
+  this.x = x;
+  this.y = y;
+  this.type = type;
+    if(type === "gunShip"){
+      this.update = function() {
+      ctx = myGameArea.context;    
+      ctx.fillStyle = "gray";
+      ctx.fillRect(x + 2, y, 1, 2);
+      ctx.fillRect(x + 4, y, 1, 2);
+      ctx.fillRect(x + 15, y, 1, 2);
+      ctx.fillRect(x + 17, y, 1, 2);
+      ctx.fillRect(x, y + 2, 20, 1);
+      ctx.fillRect(x + 1, y + 3, 18, 1);
+      ctx.fillRect(x + 2, y + 4, 16, 1);
+      ctx.fillRect(x + 2, y + 5, 4, 5);
+      ctx.fillRect(x + 8, y + 5, 4, 5);
+      ctx.fillRect(x + 14, y + 5, 4, 5);
+      ctx.fillRect(x + 3, y + 10, 14, 2);
+      ctx.fillRect(x + 4, y + 12, 5, 2);
+      ctx.fillRect(x + 11, y + 12, 5, 2);
+      ctx.fillRect(x + 5, y + 14, 4, 3);
+      ctx.fillRect(x + 11, y + 14, 4, 3);
+      ctx.fillRect(x + 6, y + 17, 8, 1);
+      ctx.fillRect(x + 7, y + 18, 2, 1);
+      ctx.fillRect(x + 11, y + 18, 2, 1);
+      ctx.fillRect(x + 8, y + 19, 1, 1);
+      ctx.fillRect(x + 11, y + 19, 1, 1);
+      ctx.fillStyle = "red";
+      ctx.fillRect(x + 3, y, 1, 2);
+      ctx.fillRect(x + 16, y, 1, 2);
+      ctx.fillRect(x + 6, y + 5, 2, 5);
+      ctx.fillRect(x + 12, y + 5, 2, 5);
+      ctx.fillRect(x + 9, y + 12, 2, 5);
+    }
+  }
+}
+
+// Player and warhead constructor
 
 function component(width, height, color, x, y, type) {
   this.width = width;
@@ -181,8 +219,9 @@ function component(width, height, color, x, y, type) {
     if(this.y < 0) {
       this.y = 0
     }
+
     
-    // Alters gravityspeed based on location relative to player
+    // Alters gravityspeed of warhead based on location relative to player
 
     if(this.x < myGamePiece.x && this.y < myGamePiece.y){
     this.gravitySpeedX += this.gravity;
@@ -228,7 +267,7 @@ function component(width, height, color, x, y, type) {
   }
 },
 
-  // function to stop projectiles moving beyond game boundaries. Only accounts for the bottom and the right side though.
+  // function to stop warheads moving beyond game boundaries. Only accounts for the bottom and the right side currently, and TBH needs a total overhaul.
 
   this.hitEdge = function() {
     var rockBottom = myGameArea.canvas.height - this.height;
@@ -269,6 +308,7 @@ function updateGameArea() {
     myGameArea.stop();
   }
   else {
+  console.log("Stars: " + myStars.length)
   myGameArea.clear();
   if(Math.floor(Math.random() * 5) === 4) {
     myStar = new star(Math.floor(Math.random() * 540), 0, Math.floor(Math.random() * 3 + 1))
@@ -281,21 +321,24 @@ function updateGameArea() {
     myStars.splice(i, 1)
   }
   }
+  if(gunShip){
+    gunShip.update()
+  }
   myEnemy.update();
   myEnemy.newPos();
   myGamePiece.speedX = 0;
   myGamePiece.speedY = 0;
   if (myGameArea.keys && myGameArea.keys[37]) {
-    myGamePiece.speedX = -1
+    myGamePiece.speedX = -2
   }
   if (myGameArea.keys && myGameArea.keys[39]) {
-    myGamePiece.speedX = 1;
+    myGamePiece.speedX = 2;
   }
   if (myGameArea.keys && myGameArea.keys[38]) {
-    myGamePiece.speedY = -1; 
+    myGamePiece.speedY = -2; 
   }
   if (myGameArea.keys && myGameArea.keys[40]) {
-    myGamePiece.speedY = 1; 
+    myGamePiece.speedY = 2; 
   }
   myGamePiece.update();
   myGamePiece.newPos();
