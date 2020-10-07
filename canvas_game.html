@@ -84,6 +84,7 @@ function startGame() {
   // Warhead
   myEnemy = new component(5, 5, "blue", Math.floor(Math.random() * 535), Math.floor(Math.random() * 655), "enemy");
   gunShip = new ship(270, 5, "gunShip");
+  torpedo = new ship(130, 5, "torpedo");
   myGameArea.start();
   // myEnemy.speedX = randoDirect();
   // myEnemy.speedY = randoDirect();
@@ -125,43 +126,66 @@ function star(x, y, speed) {
   }
 }
 
-
+// Enemy ship constructor
 
 function ship(x, y, type) {
   this.x = x;
   this.y = y;
   this.type = type;
-    if(type === "gunShip"){
-      this.update = function() {
-      ctx = myGameArea.context;    
-      ctx.fillStyle = "gray";
-      ctx.fillRect(x + 2, y, 1, 2);
-      ctx.fillRect(x + 4, y, 1, 2);
-      ctx.fillRect(x + 15, y, 1, 2);
-      ctx.fillRect(x + 17, y, 1, 2);
-      ctx.fillRect(x, y + 2, 20, 1);
-      ctx.fillRect(x + 1, y + 3, 18, 1);
-      ctx.fillRect(x + 2, y + 4, 16, 1);
-      ctx.fillRect(x + 2, y + 5, 4, 5);
-      ctx.fillRect(x + 8, y + 5, 4, 5);
-      ctx.fillRect(x + 14, y + 5, 4, 5);
-      ctx.fillRect(x + 3, y + 10, 14, 2);
-      ctx.fillRect(x + 4, y + 12, 5, 2);
-      ctx.fillRect(x + 11, y + 12, 5, 2);
-      ctx.fillRect(x + 5, y + 14, 4, 3);
-      ctx.fillRect(x + 11, y + 14, 4, 3);
-      ctx.fillRect(x + 6, y + 17, 8, 1);
-      ctx.fillRect(x + 7, y + 18, 2, 1);
-      ctx.fillRect(x + 11, y + 18, 2, 1);
-      ctx.fillRect(x + 8, y + 19, 1, 1);
-      ctx.fillRect(x + 11, y + 19, 1, 1);
-      ctx.fillStyle = "red";
-      ctx.fillRect(x + 3, y, 1, 2);
-      ctx.fillRect(x + 16, y, 1, 2);
-      ctx.fillRect(x + 6, y + 5, 2, 5);
-      ctx.fillRect(x + 12, y + 5, 2, 5);
-      ctx.fillRect(x + 9, y + 12, 2, 5);
-    }
+  this.update = function() {
+    ctx = myGameArea.context;    
+    ctx.fillStyle = "gray";
+      if(type === "gunShip"){
+        ctx.fillRect(x + 2, y, 1, 2);
+        ctx.fillRect(x + 5, y, 1, 2);
+        ctx.fillRect(x + 14, y, 1, 2);
+        ctx.fillRect(x + 17, y, 1, 2);
+        ctx.fillRect(x, y + 2, 20, 1);
+        ctx.fillRect(x + 1, y + 3, 18, 1);
+        ctx.fillRect(x + 2, y + 4, 16, 1);
+        ctx.fillRect(x + 2, y + 5, 4, 5);
+        ctx.fillRect(x + 8, y + 5, 4, 5);
+        ctx.fillRect(x + 14, y + 5, 4, 5);
+        ctx.fillRect(x + 3, y + 10, 14, 2);
+        ctx.fillRect(x + 4, y + 12, 5, 2);
+        ctx.fillRect(x + 11, y + 12, 5, 2);
+        ctx.fillRect(x + 5, y + 14, 4, 3);
+        ctx.fillRect(x + 11, y + 14, 4, 3);
+        ctx.fillRect(x + 6, y + 17, 8, 1);
+        ctx.fillRect(x + 7, y + 18, 2, 1);
+        ctx.fillRect(x + 11, y + 18, 2, 1);
+        ctx.fillRect(x + 8, y + 19, 1, 1);
+        ctx.fillRect(x + 11, y + 19, 1, 1);
+        ctx.fillStyle = "rgb(" + 255 + "," + Math.floor(Math.random() * 255) + "," + 0 + ")";
+        ctx.fillRect(x + 3, y, 2, 2);
+        ctx.fillRect(x + 15, y, 2, 2);
+        ctx.fillStyle = "red";
+        ctx.fillRect(x + 6, y + 5, 2, 5);
+        ctx.fillRect(x + 12, y + 5, 2, 5);
+        ctx.fillRect(x + 9, y + 12, 2, 5);
+      }
+      if(type === "torpedo"){
+        ctx.fillRect(x, y, 5, 2);
+        ctx.fillRect(x + 8, y, 5, 2);
+        ctx.fillRect(x + 1, y + 2, 4, 2);
+        ctx.fillRect(x + 8, y + 2, 4, 2);
+        ctx.fillRect(x + 2, y + 4, 9, 1);
+        ctx.fillRect(x + 3, y + 5, 7, 1);
+        ctx.fillRect(x + 3, y + 7, 7, 2);
+        ctx.fillRect(x + 1, y + 9, 11, 2);
+        ctx.fillRect(x + 3, y + 11, 7, 2);
+        ctx.fillRect(x + 3, y + 14, 7, 2);
+        ctx.fillRect(x + 1, y + 16, 11, 2);
+        ctx.fillRect(x + 3, y + 18, 7, 2);
+        ctx.fillRect(x + 3, y + 21, 7, 2);
+        ctx.fillRect(x + 4, y + 23, 5, 2);
+        ctx.fillStyle = "rgb(" + 255 + "," + Math.floor(Math.random() * 255) + "," + 0 + ")"
+        ctx.fillRect(x + 5, y, 3, 4);
+        ctx.fillStyle = "red";
+        ctx.fillRect(x + 3, y + 6, 7, 1);
+        ctx.fillRect(x + 3, y + 13, 7, 1);
+        ctx.fillRect(x + 3, y + 20, 7, 1);
+      }
   }
 }
 
@@ -219,10 +243,7 @@ function component(width, height, color, x, y, type) {
     if(this.y < 0) {
       this.y = 0
     }
-
-    
     // Alters gravityspeed of warhead based on location relative to player
-
     if(this.x < myGamePiece.x && this.y < myGamePiece.y){
     this.gravitySpeedX += this.gravity;
     this.gravitySpeedY += this.gravity;
@@ -266,9 +287,7 @@ function component(width, height, color, x, y, type) {
     this.hitEdge();
   }
 },
-
   // function to stop warheads moving beyond game boundaries. Only accounts for the bottom and the right side currently, and TBH needs a total overhaul.
-
   this.hitEdge = function() {
     var rockBottom = myGameArea.canvas.height - this.height;
     var rockRight = myGameArea.canvas.width - this.width;
@@ -280,10 +299,8 @@ function component(width, height, color, x, y, type) {
         this.x = rockRight;
         console.log("Triggered rockRight");
       }
-  }
-
+  },
   // Collision detection.
-
   this.crashWith = function(otherObj) {
     var myLeft = this.x;
     var myRight = this.x + (this.width);
@@ -322,7 +339,10 @@ function updateGameArea() {
   }
   }
   if(gunShip){
-    gunShip.update()
+    gunShip.update();
+  }
+  if(torpedo){
+    torpedo.update();
   }
   myEnemy.update();
   myEnemy.newPos();
