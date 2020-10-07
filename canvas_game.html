@@ -63,21 +63,20 @@ var myStar;
 
 var myStars = [];
 
+var grav = 0.05;
+
+// Only seems to be populating the first third of the Y dimension. Maybe doesn't have enough time to complete the calculations before game starts?
+
 function starField() {
-  for(i=0; i < myGameArea.canvas.height; i++){
+  for(i=0; i < 660; i++){
     if(Math.floor(Math.random() * 5) === 4) {
-      myStar = new star(Math.floor(Math.random() * 540), i, Math.floor(Math.random() * 4));
-        if(myStar.speed === 0){
-          myStar.speed = 1;
-        }
+      myStar = new star(Math.floor(Math.random() * 540), i, Math.floor(Math.random() * 3 + 1));
       myStars.push(myStar);
     }
   }
 }
 
 starField();
-
-var grav = 0.05;
 
 function startGame() {
   // Player
@@ -272,10 +271,7 @@ function updateGameArea() {
   else {
   myGameArea.clear();
   if(Math.floor(Math.random() * 5) === 4) {
-    myStar = new star(Math.floor(Math.random() * 540), 0, Math.floor(Math.random() * 4))
-    if(myStar.speed === 0) {
-      myStar.speed = 1;
-    };
+    myStar = new star(Math.floor(Math.random() * 540), 0, Math.floor(Math.random() * 3 + 1))
     myStars.push(myStar);
   }
   for(i=0; i < myStars.length; i++){
