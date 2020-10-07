@@ -63,14 +63,7 @@ var myStar;
 
 var myStars = [];
 
-var grav = 0.05;
-
-function startGame() {
-  // Player
-  myGamePiece = new component(10, 10, "red", 260, 320, "player");
-  // Projectile
-  myEnemy = new component(5, 5, "blue", 300, 72, "enemy");
-  // Populate starfield before game start (not working properly, may have to re-scope function to run independently of startGame)
+function starField() {
   for(i=0; i < myGameArea.canvas.height; i++){
     if(Math.floor(Math.random() * 5) === 4) {
       myStar = new star(Math.floor(Math.random() * 540), i, Math.floor(Math.random() * 4));
@@ -80,6 +73,17 @@ function startGame() {
       myStars.push(myStar);
     }
   }
+}
+
+starField();
+
+var grav = 0.05;
+
+function startGame() {
+  // Player
+  myGamePiece = new component(10, 10, "red", 260, 320, "player");
+  // Projectile
+  myEnemy = new component(5, 5, "blue", 300, 72, "enemy");
   // Projectile spawn (Should move these values up as arguments for myEnemy)
   myEnemy.x = Math.floor(Math.random() * 535);
   myEnemy.y = Math.floor(Math.random() * 655);
