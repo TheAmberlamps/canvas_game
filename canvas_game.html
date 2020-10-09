@@ -85,12 +85,14 @@ function startGame() {
   myEnemy = new component(5, 5, "blue", Math.floor(Math.random() * 535), Math.floor(Math.random() * 655), "enemy");
   gunShip = new ship(270, 5, "gunShip");
   torpedo = new ship(130, 5, "torpedo");
+  shipLaser = new straightLaser(gunShip.x + 9, gunShip.y, 2, 20, "rgba(255, 0, 0, 1)", "rgba(255, 0, 0, 0)")
   myGameArea.start();
   // myEnemy.speedX = randoDirect();
   // myEnemy.speedY = randoDirect();
 }
 
 // Deprecated randomly generated 2d movement
+// Could actually be very useful for cluster warhead behaviour
 
 function randoDirect() {
   x = Math.random() * 2;
@@ -127,6 +129,8 @@ function star(x, y, speed) {
 }
 
 // Enemy ship constructor
+
+// Need to implement attack for torpedo, movement and collision detection. Last will likely be the most difficult, but who's to say?
 
 function ship(x, y, type) {
   this.x = x;
@@ -186,6 +190,33 @@ function ship(x, y, type) {
         ctx.fillRect(x + 3, y + 13, 7, 1);
         ctx.fillRect(x + 3, y + 20, 7, 1);
       }
+  }
+}
+
+// Simple laser constructor
+// Need to use rgba color with linear gradient if you want transparency
+// Weird, I can get it working in the w3 Tryit editor but the transparency doesn't seem to be working in game.
+// Oh god the gradient location is relative to the canvas itself, not the object... mystery solved, new problem encountered.
+// It wasn't simple but gradient tracking is solved. It still needs some tweaking to make it more vibrant (you know, like a laser or something) but be careful. One wrong move will break things spectacularly.
+// Additionally, may want to incorporate this as a subfunction of the ship constructor.
+
+function straightLaser(x, y, width, height, colorA, colorB){
+  this.x = x;
+  this.y = y;
+  this.width = width;
+  this.height = height;
+  this.colorA = colorA;
+  this.colorB = colorB;
+  this.update = function(){
+    ctx = myGameArea.context;
+    grd = ctx.createLinearGradient(0, this.y + this.height, 0, this.y);
+    grd.addColorStop(0, this.colorA);
+    grd.addColorStop(1, this.colorB);
+    ctx.fillStyle = grd;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
+  this.newPos = function(){
+    this.y += 6;
   }
 }
 
@@ -318,15 +349,17 @@ function component(width, height, color, x, y, type) {
   }
 }
 
-// Redraws the gameArea.
+// Redraws the gameArea every interval.
 
 function updateGameArea() {
   if (myGamePiece.crashWith(myEnemy)) {
     myGameArea.stop();
   }
   else {
-  console.log("Stars: " + myStars.length)
   myGameArea.clear();
+
+  // Starfield population and destruction
+
   if(Math.floor(Math.random() * 5) === 4) {
     myStar = new star(Math.floor(Math.random() * 540), 0, Math.floor(Math.random() * 3 + 1))
     myStars.push(myStar);
@@ -344,6 +377,10 @@ function updateGameArea() {
   if(torpedo){
     torpedo.update();
   }
+
+  shipLaser.update();
+  shipLaser.newPos();
+  
   myEnemy.update();
   myEnemy.newPos();
   myGamePiece.speedX = 0;
